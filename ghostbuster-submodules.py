@@ -35,7 +35,6 @@ def find_gitmodules_file(base_dir: str) -> str:
         f"No .gitmodules or .submodules was found in: {base_dir}"
     )
 
-
 #
 # Parse .gitmodules/.submodules file to extract submodule paths.
 #
@@ -144,7 +143,7 @@ def main():
     print("\nReferences found:\n")
     for sub_path, files in refs.items():
         if files:
-            print(f"Submodule path: {sub_path}")
+            print(f"{GREEN}Submodule path: {sub_path}{RESET}")
             for f in files:
                 print(f"  -> {f}")
         else:
