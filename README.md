@@ -56,6 +56,9 @@ Or create an alias for easier access and use!
 
 alias ghostbuster="python3 /path/to/ghostbuster-submodules.py"
 
+Or just make it an executable.
+chmod +x ghostbuster-submodules.py
+
 ## Basic scan
 python3 ghostbuster-submodules.py [path-to-gitrepo]
 
@@ -105,9 +108,13 @@ Zero ambiguity. Zero guesswork.
 ghostbuster-submodules
 Because haunted repos are nobody’s friend.
 
+---
+
 (  •_•) 
 <(    )╯  "No more ghosts."
  /    \
+
+---
 
 If your Git repo is haunted...
 You know exactly who to call.

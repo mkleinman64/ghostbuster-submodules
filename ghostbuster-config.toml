@@ -1,0 +1,15 @@
+# ghostbuster-submodules configuration
+
+ignore_filenames = [
+    ".gitignore",
+    ".gitmodules",
+    ".submodules",
+    "README.md",
+    "readme.md",
+    "reader.md",
+    "Reader.md",
+]
+
+ignore_dirs = [
+    ".git"
+]

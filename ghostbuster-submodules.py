@@ -1,11 +1,46 @@
 import os
 import sys
+import tomllib
 
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+ghostbuster-submodules.py
+-------------------------
+
+Detects unused (“ghost”) Git submodules by scanning a repository for references
+to submodule paths defined in `.gitmodules` or `.submodules`.
+
+If a submodule path never appears in any file (except files excluded via config),
+it is considered a ghost submodule. These are highlighted in red.
+Active submodules are highlighted in green.
+
+Features:
+    - Parses .gitmodules / .submodules
+    - Supports optional TOML config (ghostbuster-config.toml)
+    - Ignores user-defined filenames and directories
+    - Recursively scans all repository files
+    - ANSI color output
+    - Zero external dependencies (Python standard library only)
+
+Author: Martin Kleinman
+License: MIT License
+Repository: https://github.com/mkleinman64/ghostbuster-submodules
+
+Who you gonna call?  → ghostbuster-submodules 👻
+"""
+
+
+# ANSI color codes for terminal output
+# And yes, if you pipe the output to a file, it will look messy. Sorry ( not sorry? :P )
 RED = "\033[91m"
 GREEN = "\033[92m"
 RESET = "\033[0m"
 
-IGNORE_FILENAMES = {
+#
+# Default ignore lists. if the TOML file is not found, these will be used.
+#
+DEFAULT_IGNORE_FILENAMES = {
     ".gitignore",
     ".gitmodules",
     ".submodules",
@@ -15,12 +50,44 @@ IGNORE_FILENAMES = {
     "Reader.md",
 }
 
-IGNORE_DIRS = {
+DEFAULT_IGNORE_DIRS = {
     ".git"
 }
 
+# Global ignore lists, populated from config or defaults.
+# Yes.. I know.. globals are bad. But this is a small script.
+IGNORE_FILENAMES: set[str] = set()
+IGNORE_DIRS: set[str] = set()
+
+#
+# Loads configuration from a TOML file.
+#
+def load_config(config_path):
+    if not os.path.exists(config_path):
+        print(f"Config file not found: {config_path}, using defaults.")
+        return None
+
+    with open(config_path, "rb") as f:
+        return tomllib.load(f)
+
+#
+# Returns the ignore lists from config or defaults.
+#     
+def get_ignore_lists(config):
+    ignore_filenames = set(DEFAULT_IGNORE_FILENAMES)
+    ignore_dirs = set(DEFAULT_IGNORE_DIRS)
+
+    if config:
+        if "ignore_filenames" in config:
+            ignore_filenames.update(config["ignore_filenames"])
+        if "ignore_dirs" in config:
+            ignore_dirs.update(config["ignore_dirs"])
+
+    return ignore_filenames, ignore_dirs    
+
 #
 # Find .gitmodules or .submodules file and return it as a reference for further processing.
+# Possible improvement: use the same TOML config file to specify custom submodules file name?
 #
 def find_gitmodules_file(base_dir: str) -> str:
     gm = os.path.join(base_dir, ".gitmodules")
@@ -121,11 +188,16 @@ def main():
         print("Usage: python3 scanner.py <directory>")
         sys.exit(1)
 
+    program_dir = os.path.dirname(os.path.abspath(__file__))
     base_dir = os.path.abspath(sys.argv[1])
 
     if not os.path.isdir(base_dir):
         print(f"Error: {base_dir} is not a valid directory.")
         sys.exit(1)
+
+    global IGNORE_FILENAMES, IGNORE_DIRS
+    config = load_config(os.path.join(program_dir, "ghostbuster-config.toml"))
+    IGNORE_FILENAMES, IGNORE_DIRS = get_ignore_lists(config)    
 
     print(f"Scanning directory: {base_dir}")
 
