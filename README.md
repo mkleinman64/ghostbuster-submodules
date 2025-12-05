@@ -59,13 +59,14 @@ Or create an alias for easier access and use!
 alias ghostbuster="python3 /path/to/ghostbuster-submodules.py"
 
 Or just make it an executable.
+
 chmod +x ghostbuster-submodules.py
 
 ## Basic scan
 python3 ghostbuster-submodules.py [path-to-gitrepo]
 
 ## Example output
-
+<pre>
 Scanning directory: /my/project
 
 Found submodules:
@@ -77,7 +78,7 @@ Submodule: Shared/Schema_SomeProject    <-- USED :)
   -> config/something.xml
 
 Submodule: Shared/AndAnotherModule (no references found!)   <-- GHOST 👻
-
+</pre>
 Unused submodules are shown in red.
 
 ## Color Output
