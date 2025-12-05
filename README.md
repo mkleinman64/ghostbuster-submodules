@@ -29,6 +29,8 @@ These “submodule ghosts” slow down your workflow, increase cognitive load, c
 
 It works by parsing `.gitmodules` (or `.submodules`) and checking for textual references to each submodule path anywhere in your project.
 
+And you can configure which files are not to be processed. E.g. parsing a README.md file inside your project might contain a reference to a specific submodule which would cause a false positive. 
+
 ---
 
 ## Features
@@ -109,13 +111,15 @@ ghostbuster-submodules
 Because haunted repos are nobody’s friend.
 
 ---
-
+<pre>
 (  •_•) 
 <(    )╯  "No more ghosts."
  /    \
-
+</pre>
 ---
 
 If your Git repo is haunted...
 You know exactly who to call.
+
+Brain 2025!
 
