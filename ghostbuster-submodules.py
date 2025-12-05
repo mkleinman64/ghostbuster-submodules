@@ -30,6 +30,13 @@ Repository: https://github.com/mkleinman64/ghostbuster-submodules
 Who you gonna call?  → ghostbuster-submodules 👻
 """
 
+# TODO: Add JSON output format
+# TODO: Add option to point to a directory which contains multiple repos to scan them all, with summary!
+# TODO: Add option to delete ghost submodules automatically (after confirmation)
+# TODO: Add SonarQube integration, as a plugin or standalone scanner ( the perfect code smell you want to find! )
+# TODO: Add unit tests
+# TODO: Add --fail-on-ghosts --> exit code 1 if any ghost submodules found
+
 
 # ANSI color codes for terminal output
 # And yes, if you pipe the output to a file, it will look messy. Sorry ( not sorry? :P )
