@@ -220,7 +220,12 @@ def main():
         sys.exit(2)
 
     global IGNORE_FILENAMES, IGNORE_DIRS
-    config = load_config(os.path.join(program_dir, "ghostbuster-config.toml"))
+    try:
+        config = load_config(os.path.join(program_dir, "ghostbuster-config.toml"))
+    except tomllib.TOMLDecodeError as e:
+        print(f"Error parsing ghostbuster-config.toml: {e}")
+        sys.exit(2)        
+        
     IGNORE_FILENAMES, IGNORE_DIRS = get_ignore_lists(config)    
 
     print(f"Ghostbuster-submodules: {__version__}")
