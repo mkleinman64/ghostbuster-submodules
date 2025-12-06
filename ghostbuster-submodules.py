@@ -1,6 +1,9 @@
 import os
 import sys
 import tomllib
+import argparse
+
+from version import __version__
 
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
@@ -22,6 +25,9 @@ Features:
     - Recursively scans all repository files
     - ANSI color output
     - Zero external dependencies (Python standard library only)
+    - Command-line interface with options
+    - Exit code control for CI/CD integration or any other batch script you want to use it in.
+    
 
 Author: Martin Kleinman
 License: MIT License
@@ -30,13 +36,13 @@ Repository: https://github.com/mkleinman64/ghostbuster-submodules
 Who you gonna call?  → ghostbuster-submodules 👻
 """
 
+## TODOs
 # TODO: Add JSON output format
 # TODO: Add option to point to a directory which contains multiple repos to scan them all, with summary!
 # TODO: Add option to delete ghost submodules automatically (after confirmation)
 # TODO: Add SonarQube integration, as a plugin or standalone scanner ( the perfect code smell you want to find! )
 # TODO: Add unit tests
-# TODO: Add --fail-on-ghosts --> exit code 1 if any ghost submodules found
-
+##
 
 # ANSI color codes for terminal output
 # And yes, if you pipe the output to a file, it will look messy. Sorry ( not sorry? :P )
@@ -91,6 +97,19 @@ def get_ignore_lists(config):
             ignore_dirs.update(config["ignore_dirs"])
 
     return ignore_filenames, ignore_dirs    
+
+#
+# Parse command line arguments.
+#
+def parse_args():
+    parser = argparse.ArgumentParser(description="Ghostbuster Submodules Scanner")
+    parser.add_argument("directory", help="Path to the git repository to scan")
+    parser.add_argument(
+        "--fail-on-ghosts",
+        action="store_true",
+        help="Exit with code 1 if any ghost submodules are found",
+    )
+    return parser.parse_args()
 
 #
 # Find .gitmodules or .submodules file and return it as a reference for further processing.
@@ -191,12 +210,10 @@ def scan_repo_for_submodule_references(base_dir: str, submodule_paths: list[str]
 
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python3 scanner.py <directory>")
-        sys.exit(1)
+    args = parse_args()
+    base_dir = os.path.abspath(args.directory)
 
     program_dir = os.path.dirname(os.path.abspath(__file__))
-    base_dir = os.path.abspath(sys.argv[1])
 
     if not os.path.isdir(base_dir):
         print(f"Error: {base_dir} is not a valid directory.")
@@ -206,6 +223,11 @@ def main():
     config = load_config(os.path.join(program_dir, "ghostbuster-config.toml"))
     IGNORE_FILENAMES, IGNORE_DIRS = get_ignore_lists(config)    
 
+    print(f"Ghostbuster-submodules: {__version__}")
+    print( "-----------------------------------------" )
+    print( "Parameters :")
+    print(f"--fail-on-ghosts: {args.fail_on_ghosts}")
+    print( "-----------------------------------------" )
     print(f"Scanning directory: {base_dir}")
 
     gitmodules_path = find_gitmodules_file(base_dir)
@@ -219,6 +241,8 @@ def main():
 
     refs = scan_repo_for_submodule_references(base_dir, submodule_paths)
 
+    ghosts_found = False
+
     print("\nReferences found:\n")
     for sub_path, files in refs.items():
         if files:
@@ -227,8 +251,17 @@ def main():
                 print(f"  -> {f}")
         else:
             print(f"{RED}Submodule path: {sub_path} (no references found!){RESET}")
+            ghosts_found = True
         print()
 
+    if args.fail_on_ghosts and ghosts_found:
+        print(f"{RED}Ghosts detected → exiting with code 1 as requested (--fail-on-ghosts).{RESET}")
+        sys.exit(1)
+    else:
+        print(f"{GREEN}No ghosts detected. Exiting cleanly.{RESET}")
 
+#
+# Entry point
+#
 if __name__ == "__main__":
     main()
