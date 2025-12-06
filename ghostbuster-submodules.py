@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
 import os
 import sys
 import tomllib
@@ -5,8 +8,6 @@ import argparse
 
 from version import __version__
 
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 """
 ghostbuster-submodules.py
 -------------------------
@@ -28,8 +29,7 @@ Features:
     - Command-line interface with options
     - Exit code control for CI/CD integration or any other batch script you want to use it in.
     
-
-Author: Martin Kleinman
+Author: Martin "Brain" Kleinman
 License: MIT License
 Repository: https://github.com/mkleinman64/ghostbuster-submodules
 
