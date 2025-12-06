@@ -149,6 +149,15 @@ The script uses ANSI colors to highlight results:
 
 🔴 Red → unused / ghost submodules
 
+## Exit codes
+
+| Code | Meaning |
+|------|---------|
+| 0 | No ghosts detected |
+| 1 | One or more ghost submodules found (`--fail-on-ghosts`) |
+| 2 | Invalid arguments or fatal error |
+
+
 
 ## How it works
 
@@ -170,6 +179,19 @@ Zero ambiguity. Zero guesswork.
 
 ghostbuster-submodules
 Because haunted repos are nobody’s friend.
+
+## Roadmap
+
+I still have some ideas I want to add to the code.
+
+- [ ] JSON output format
+- [ ] Multi-repo scanning
+- [ ] Auto-remove ghost submodules (with confirmation)
+- [ ] SonarQube integration (Generic Issue Format)
+- [ ] Unit tests
+- [ ] PyPI packaging
+
+If you have any other interesting ideas let me know! 
 
 ---
 <pre>

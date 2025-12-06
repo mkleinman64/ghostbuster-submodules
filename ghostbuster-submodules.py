@@ -217,7 +217,7 @@ def main():
 
     if not os.path.isdir(base_dir):
         print(f"Error: {base_dir} is not a valid directory.")
-        sys.exit(1)
+        sys.exit(2)
 
     global IGNORE_FILENAMES, IGNORE_DIRS
     config = load_config(os.path.join(program_dir, "ghostbuster-config.toml"))
@@ -230,7 +230,12 @@ def main():
     print( "-----------------------------------------" )
     print(f"Scanning directory: {base_dir}")
 
-    gitmodules_path = find_gitmodules_file(base_dir)
+    try:
+        gitmodules_path = find_gitmodules_file(base_dir)
+    except FileNotFoundError as e:
+        print(f"{RED}{e}{RESET}")
+        sys.exit(2)
+
     print(f".Valid submodules file found: {gitmodules_path}")
 
     submodule_paths = parse_submodule_paths(gitmodules_path)
