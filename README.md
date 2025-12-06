@@ -15,16 +15,31 @@
 
 ## What is this?
 
-Large Git repositories often collect *ghost submodules*: entries in `.gitmodules` or `.submodules` that nobody uses anymore, were left behind after a migration, or refer to directories that no longer exist.
+Large Git repositories often collect *ghost submodules*: entries in `.gitmodules` or `.submodules` that nobody uses anymore, were left behind after a migration, went obsolete after a code upgrade or refer to directories that no longer exist.
 
 These “submodule ghosts” slow down your workflow, increase cognitive load, confuse new developers, and clutter your build process.
+
+They also increase your repository’s attack surface.  
+Even unused submodules are still *declared dependencies* inside your Git metadata.
+
+This means they can:
+
+- introduce unnoticed supply-chain risk  
+- reference outdated or vulnerable code  
+- trigger dependency-confusion scenarios  
+- mislead security scanners  
+- create false trust in code that is no longer maintained  
+
+In short:  
+**a ghost submodule is not just technical debt — it’s a potential security liability.**
 
 `ghostbuster-submodules.py` scans your repository and tells you:
 
 - Which submodules are actually referenced in your repo  
 - Which submodules are **unused** (ghosts)  
 - Which files reference which submodules  
-- Highlights unused submodules in red  
+- Highlights unused submodules in red 
+- Optional != 0 exit_code for use in CI/CD pipelines or any other script you want to use ( --fail-on-ghosts ) 
 - Helps you clean up safely
 
 It works by parsing `.gitmodules` (or `.submodules`) and checking for textual references to each submodule path anywhere in your project.
@@ -43,6 +58,7 @@ And you can configure which files are not to be processed. E.g. parsing a README
 - ⚡ Fast, simple, safe  
 - 🧰 Works with `.gitmodules` **and** `.submodules`  
 - 🛡 Ignores `.git/`, README, `.gitmodules`, `.submodules` by default  ( configurable :P )
+- --fail-on-ghosts for != 0 exit_code
 
 ---
 
@@ -50,35 +66,79 @@ And you can configure which files are not to be processed. E.g. parsing a README
 
 Clone the repo and run the script directly:
 
+<pre>
 git clone https://github.com/mkleinman64/ghostbuster-submodules.git
 cd ghostbuster-submodules
-python3 ghostbuster-submodules.py <directory>
+python3 ghostbuster-submodules.py <directory> [--fail-on-ghosts]
+</pre>
 
 Or create an alias for easier access and use!
 
+<pre>
 alias ghostbuster="python3 /path/to/ghostbuster-submodules.py"
+</pre>
 
 Or just make it an executable.
 
+<pre>
 chmod +x ghostbuster-submodules.py
+</pre>
 
 ## Basic scan
+<pre>
 python3 ghostbuster-submodules.py [path-to-gitrepo]
+</pre>
+
+## --fail-on-ghosts 
+<pre>
+python3 ghostbuster-submodules.py [path-to-gitrepo] --fail-on-ghosts
+</pre>
+
+When this flag is enabled, the scanner will exit with exit code 1 if any ghost submodules are detected.
+
+This makes it ideal for:
+- CI/CD pipelines
+- pre-commit hooks
+- quality gates
+- automated cleanup workflows
+
+### Example (bash)
+<pre>
+ghostbuster-submodules.py [some_dir] --fail-on-ghosts
+if [ $? -ne 0 ]; then
+    echo "Ghost submodules detected!"
+    exit 1
+fi
+</pre>
+
+Use this flag inside your CI/CD pipeline to prevent dead submodules from silently accumulating in your repository.
 
 ## Example output
 <pre>
-Scanning directory: /my/project
+python3 ghostbuster-submodules.py ~/temp_mk/scannertest/ --fail-on-ghosts
+Ghostbuster-submodules: 1.1.0
+-----------------------------------------
+Parameters :
+--fail-on-ghosts: True
+-----------------------------------------
+Scanning directory: /home/repository
+.Valid submodules file found: /home/repository/.submodules
 
-Found submodules:
+ submodules:
   - Shared/Schema_SomeProject
   - Shared/AndAnotherModule
 
-Submodule: Shared/Schema_SomeProject    <-- USED :)
-  -> src/somefile.java
-  -> config/something.xml
+References found:
 
-Submodule: Shared/AndAnotherModule (no references found!)   <-- GHOST 👻
+Submodule path: Shared/Schema_SomeProject (no references found!)    <-- GHOST 👻
+
+Submodule path: Shared/AndAnotherModule
+  -> ProxyServices/test.proxy
+
+Ghosts detected → exiting with code 1 as requested (--fail-on-ghosts).
+
 </pre>
+
 Unused submodules are shown in red.
 
 ## Color Output
@@ -119,8 +179,7 @@ Because haunted repos are nobody’s friend.
 </pre>
 ---
 
-If your Git repo is haunted...
-You know exactly who to call.
+If your Git repo is haunted... You know exactly who to call.
 
 Brain 2025!
 
